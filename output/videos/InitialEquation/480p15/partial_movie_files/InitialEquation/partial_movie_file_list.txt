@@ -1,0 +1,10 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/Users/zbabr/code/school/diffeq_vid/output/videos/InitialEquation/480p15/partial_movie_files/InitialEquation/1584795214_4084896807_223132457.mp4'
+file 'file:C:/Users/zbabr/code/school/diffeq_vid/output/videos/InitialEquation/480p15/partial_movie_files/InitialEquation/4072820271_3201849554_2960859579.mp4'
+file 'file:C:/Users/zbabr/code/school/diffeq_vid/output/videos/InitialEquation/480p15/partial_movie_files/InitialEquation/4072820271_4155390522_1751890010.mp4'
+file 'file:C:/Users/zbabr/code/school/diffeq_vid/output/videos/InitialEquation/480p15/partial_movie_files/InitialEquation/4072820271_807188262_831756167.mp4'
+file 'file:C:/Users/zbabr/code/school/diffeq_vid/output/videos/InitialEquation/480p15/partial_movie_files/InitialEquation/4072820271_2575306986_561181863.mp4'
+file 'file:C:/Users/zbabr/code/school/diffeq_vid/output/videos/InitialEquation/480p15/partial_movie_files/InitialEquation/4072820271_2408024828_2531103431.mp4'
+file 'file:C:/Users/zbabr/code/school/diffeq_vid/output/videos/InitialEquation/480p15/partial_movie_files/InitialEquation/4072820271_1179007222_3184412842.mp4'
+file 'file:C:/Users/zbabr/code/school/diffeq_vid/output/videos/InitialEquation/480p15/partial_movie_files/InitialEquation/4072820271_4257534502_1864016564.mp4'
+file 'file:C:/Users/zbabr/code/school/diffeq_vid/output/videos/InitialEquation/480p15/partial_movie_files/InitialEquation/4072820271_2408024828_1300715004.mp4'
