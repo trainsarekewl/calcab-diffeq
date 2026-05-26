@@ -17,7 +17,7 @@ class SecondTerm(Scene):
         )
         equation.move_to(ORIGIN)
 
-        self.play(FadeIn(equation), run_time=1.2)
+        self.add(equation)
         self.wait(1)
 
         original_k_center = equation[4].get_center()
