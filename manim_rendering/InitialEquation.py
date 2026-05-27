@@ -19,7 +19,7 @@ class InitialEquation(Scene):
 
         # ── Label below the zoomed I ──────────────────────────────────────
         label = Tex(
-            r"$I$ is the total current being injected into the neuron from the input",
+            r"total current from the input",
             font_size=30,
             color=YELLOW,
         )

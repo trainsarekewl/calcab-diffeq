@@ -5,7 +5,7 @@ CAP_COLOR  = YELLOW
 NA_COLOR   = "#FF6B35"
 K_COLOR    = GREEN_C
 LEAK_COLOR = BLUE_C
-DIM        = 0.2
+DIM        = 0.4
 
 
 def vm(t):
@@ -16,9 +16,9 @@ def vm(t):
     elif t <= 3.5:
         return -55.0 + 135.71 * (t - 2.8)  # -55 → +40  (spike)
     elif t <= 5.0:
-        return 40.0 - 80.0 * (t - 3.5)     # +40 → -80  (repolarization)
+        return 40.0 - 80.0 * (t - 3.5)     # +40 → -80  (repolarization + overshoot)
     elif t <= 7.5:
-        return -80.0 + 4.0 * (t - 5.0)     # -80 → -70  (recovery)
+        return -80.0 + 4.0 * (t - 5.0)     # -80 → -70  (recovery via leak)
     else:
         return -70.0
 
@@ -39,9 +39,7 @@ class ActionPotential(Scene):
             r"g_l (V_m - V_l)",                 # [8]
             font_size=34,
         )
-        eq.to_edge(UP, buff=0.3)
-        for i in [3, 4, 5, 6, 7, 8]:
-            eq[i].set_opacity(DIM)
+        eq.move_to(ORIGIN)
 
         # ── Axes ──────────────────────────────────────────────────────────────
         axes = Axes(
@@ -74,15 +72,23 @@ class ActionPotential(Scene):
         thresh_lbl.move_to(axes.c2p(1.1, -55) + UP * 0.23)
 
         # ── Curve segments ────────────────────────────────────────────────────
+        # seg_rest:  flat at -70 mV before stimulus
+        # seg_cap:   stimulus charging membrane (-70 → -55), capacitor term
+        # seg_na:    sodium spike (-55 → +40)
+        # seg_k:     potassium repolarization + overshoot (+40 → -80)
+        # seg_leak:  leak recovery from trough back to rest (-80 → -70)
+        # seg_rest2: flat at -70 mV after recovery
         seg_rest  = axes.plot(vm, x_range=[0.0,  2.0],  color=GREY_C,    stroke_width=2.5)
         seg_cap   = axes.plot(vm, x_range=[2.0,  2.8],  color=CAP_COLOR,  stroke_width=3.0)
         seg_na    = axes.plot(vm, x_range=[2.8,  3.5],  color=NA_COLOR,   stroke_width=3.0)
         seg_k     = axes.plot(vm, x_range=[3.5,  5.0],  color=K_COLOR,    stroke_width=3.0)
-        seg_hyper = axes.plot(vm, x_range=[5.0,  7.5],  color=K_COLOR,    stroke_width=2.5)
-        seg_leak  = axes.plot(vm, x_range=[7.5, 10.0],  color=LEAK_COLOR, stroke_width=2.5)
+        seg_leak  = axes.plot(vm, x_range=[5.0,  7.5],  color=LEAK_COLOR, stroke_width=2.5)
+        seg_rest2 = axes.plot(vm, x_range=[7.5, 10.0],  color=GREY_C,     stroke_width=2.5)
 
         # ── SCENE 1: Setup ────────────────────────────────────────────────────
-        self.play(FadeIn(eq), run_time=0.9)
+        self.add(eq)
+        self.play(eq.animate.to_edge(UP, buff=0.3), run_time=0.7)
+        self.play(*[eq[i].animate.set_opacity(DIM) for i in [2, 3, 4, 5, 6, 7, 8]], run_time=0.5)
         self.play(
             Create(axes),
             FadeIn(vm_lbl),
@@ -98,14 +104,17 @@ class ActionPotential(Scene):
             Indicate(eq[0], color=WHITE, scale_factor=1.4),
             run_time=0.5,
         )
-        self.play(eq[2].animate.set_color(CAP_COLOR), run_time=0.5)
+        self.play(
+            eq[2].animate.set_color(CAP_COLOR).set_opacity(1),
+            run_time=0.5,
+        )
         self.play(Create(seg_cap), run_time=2.0)
         self.wait(0.4)
 
         # ── SCENE 3: Sodium spike ─────────────────────────────────────────────
         self.play(FadeIn(thresh_h), FadeIn(thresh_lbl), run_time=0.5)
         self.play(
-            eq[2].animate.set_color(WHITE),
+            eq[2].animate.set_color(WHITE).set_opacity(DIM),
             eq[5].animate.set_opacity(1),
             eq[6].animate.set_color(NA_COLOR).set_opacity(1),
             run_time=0.5,
@@ -113,7 +122,7 @@ class ActionPotential(Scene):
         self.play(Create(seg_na), run_time=1.5)
         self.wait(0.4)
 
-        # ── SCENE 4: Na shuts off, K repolarizes ──────────────────────────────
+        # ── SCENE 4: Na shuts off, K repolarizes + overshoots ─────────────────
         self.play(
             eq[5].animate.set_opacity(DIM),
             eq[6].animate.set_opacity(DIM).set_color(WHITE),
@@ -121,25 +130,27 @@ class ActionPotential(Scene):
             eq[4].animate.set_color(K_COLOR).set_opacity(1),
             run_time=0.5,
         )
+        # K drives voltage all the way down through rest to trough at -80 mV
         self.play(Create(seg_k), run_time=2.5)
-        self.wait(0.3)
-
-        # ── SCENE 5: Hyperpolarization ────────────────────────────────────────
-        self.play(Create(seg_hyper), run_time=3.0)
         self.wait(0.4)
 
-        # ── SCENE 6: Leak restores rest ───────────────────────────────────────
+        # ── SCENE 5: Leak restores rest from trough ───────────────────────────
         self.play(
             eq[3].animate.set_opacity(DIM),
-            eq[4].anonimate.set_opacity(DIM).set_color(WHITE),
+            eq[4].animate.set_opacity(DIM).set_color(WHITE),
             eq[7].animate.set_opacity(1),
             eq[8].animate.set_color(LEAK_COLOR).set_opacity(1),
             run_time=0.5,
         )
+        # Leak pulls voltage from -80 back up to -70
         self.play(Create(seg_leak), run_time=3.0)
-        self.wait(0.5)
+        self.wait(0.3)
 
-        # All terms return to normal
+        # ── SCENE 6: Back to rest ─────────────────────────────────────────────
+        self.play(Create(seg_rest2), run_time=1.5)
+        self.wait(0.3)
+
+        # All terms return to normal white
         self.play(
             *[eq[i].animate.set_opacity(1).set_color(WHITE) for i in range(9)],
             run_time=0.8,
