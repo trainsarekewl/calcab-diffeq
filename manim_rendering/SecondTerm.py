@@ -45,7 +45,8 @@ class SecondTerm(Scene):
         )
         k_split.move_to(UP * 2.2)
 
-        self.play(ReplacementTransform(equation[4], k_split), run_time=0.4)
+        self.remove(equation[4])
+        self.add(k_split)
 
         self.wait(0.3)
 
